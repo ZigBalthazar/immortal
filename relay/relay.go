@@ -30,7 +30,7 @@ func New(cfg *config.Config) (*Relay, error) {
 
 	h := handler.New(db, cfg.Parameters.Handler)
 
-	ws, err := websocket.New(cfg.WebsocketServer, h)
+	ws, err := websocket.New(cfg.WebsocketServer, h, cfg.GetNIP11Documents())
 	if err != nil {
 		return nil, err
 	}

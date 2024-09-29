@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/dezh-tech/immortal/handler"
 	"github.com/dezh-tech/immortal/types/filter"
 	"github.com/dezh-tech/immortal/types/message"
+	"github.com/dezh-tech/immortal/types/nip11"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,9 +28,10 @@ type Server struct {
 	conns       map[*websocket.Conn]clientState
 	mu          sync.RWMutex
 	handlers    *handler.Handler
+	nip11       *nip11.RelayInformationDocument
 }
 
-func New(cfg Config, h *handler.Handler) (*Server, error) {
+func New(cfg Config, h *handler.Handler, nip11 *nip11.RelayInformationDocument) (*Server, error) {
 	seb := bloom.NewWithEstimates(cfg.KnownBloomSize, 0.9)
 
 	f, err := os.Open(cfg.BloomBackupPath)
@@ -45,6 +48,7 @@ func New(cfg Config, h *handler.Handler) (*Server, error) {
 		conns:       make(map[*websocket.Conn]clientState),
 		mu:          sync.RWMutex{},
 		handlers:    h,
+		nip11:       nip11,
 	}, nil
 }
 
@@ -59,6 +63,18 @@ func (s *Server) Start() error {
 
 // handleWS is WebSocket handler.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Check if the request is trying to upgrade to a WebSocket
+	if r.Header.Get("Connection") != "Upgrade" || r.Header.Get("Upgrade") != "websocket" {
+		// This is a normal HTTP request, return a JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Encode the response to JSON and write it to the response writer
+		json.NewEncoder(w).Encode(s.nip11)
+		return
+	}
+
+	// WebSocket upgrade logic
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
