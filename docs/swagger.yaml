@@ -1,0 +1,71 @@
+basePath: /
+definitions:
+  requests.LoginRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      password:
+        example: "11111111"
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  responses.Error:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+  responses.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      exp:
+        type: integer
+    type: object
+info:
+  contact:
+    email: hi@Dezh.tech
+    name: Dezh Technologies
+    url: https://dezh.tech
+  description: Immortal Management API provide some useful api to manage the relay
+    and other services related to Immortal
+  title: Immortal Management API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Perform user login
+      operationId: user-login
+      parameters:
+      - description: User's credentials
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Authenticate a user
+      tags:
+      - User Actions
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

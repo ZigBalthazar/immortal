@@ -18,16 +18,6 @@ ws_server:
   # default is 7777.
   port: 7777
 
-# http_server contains information about http server.
-http_server:
-  # bind is the IP address to be bind and listen on.
-  # default if local host.
-  bind: "0.0.0.0"
-
-  # port is websocket port to be listen on.
-  # default is 8888.
-  port: 8888
-
 # database contains details of database connections and limitations.
 database:
   # db_name is the name of mongodb related to immortal
@@ -55,3 +45,13 @@ redis:
   # bloom_name specifies the name of bloom filter key
   # default is IMMO_BLOOM.
   bloom_name: "IMMO_BLOOM" 
+
+# management contains information about management server.
+management:
+  # bind is the IP address to be bind and listen on.
+  # default if local host.
+  bind: "0.0.0.0"
+
+  # port is websocket port to be listen on.
+  # default is 8888.
+  port: 8888

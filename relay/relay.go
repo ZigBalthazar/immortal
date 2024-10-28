@@ -6,19 +6,20 @@ import (
 	"github.com/dezh-tech/immortal/config"
 	"github.com/dezh-tech/immortal/database"
 	"github.com/dezh-tech/immortal/handler"
+	"github.com/dezh-tech/immortal/management"
+	"github.com/dezh-tech/immortal/management/routes"
 	"github.com/dezh-tech/immortal/metrics"
 	"github.com/dezh-tech/immortal/relay/redis"
-	"github.com/dezh-tech/immortal/server/http"
-	"github.com/dezh-tech/immortal/server/websocket"
+	"github.com/dezh-tech/immortal/websocket"
 )
 
 // Relay keeps all concepts such as server, database and manages them.
 type Relay struct {
 	config          config.Config
 	websocketServer *websocket.Server
-	httpServer      *http.Server
 	database        *database.Database
 	redis           *redis.Redis
+	management      *management.Server
 }
 
 // NewRelay creates a new relay.
@@ -47,7 +48,7 @@ func New(cfg *config.Config) (*Relay, error) {
 		return nil, err
 	}
 
-	hs, err := http.New(cfg.HTTPServer, db)
+	managementServer, err := management.NewServer(cfg.Management)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +57,8 @@ func New(cfg *config.Config) (*Relay, error) {
 		config:          *cfg,
 		websocketServer: ws,
 		database:        db,
-		httpServer:      hs,
 		redis:           r,
+		management: managementServer,
 	}, nil
 }
 
@@ -73,7 +74,8 @@ func (r *Relay) Start() chan error {
 	}()
 
 	go func() {
-		if err := r.httpServer.Start(); err != nil {
+		routes.ConfigureRoutes(r.management)
+		if err := r.management.Start(); err != nil {
 			errCh <- err
 		}
 	}()

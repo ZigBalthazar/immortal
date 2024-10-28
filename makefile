@@ -25,7 +25,7 @@ check:
 	golangci-lint run --timeout=20m0s
 
 ### Building
-build:
+build:build-swagger
 	go build -o build/immortal cmd/main.go
 
 ### pre commit
@@ -38,5 +38,8 @@ compose-up:
 
 compose-down:
 	docker-compose down
+
+build-swagger:
+	swag init -d ./management/ -g management.go
 
 .PHONY: build

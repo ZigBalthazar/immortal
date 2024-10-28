@@ -7,7 +7,7 @@ import (
 	"github.com/dezh-tech/immortal"
 	"github.com/dezh-tech/immortal/database"
 	"github.com/dezh-tech/immortal/handler"
-	"github.com/dezh-tech/immortal/server/websocket"
+	"github.com/dezh-tech/immortal/websocket"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
